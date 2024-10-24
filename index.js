@@ -6,6 +6,10 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 
 app.use(express.json())
 
+const cors = require('cors')
+
+app.use(cors())
+
 let persons = [
       { 
         name: "Arto Hellas", 
@@ -28,6 +32,7 @@ let persons = [
         id: "4"
       }
     ]
+
   app.get('/', (request, response) => {
     response.send('<h1>Hello World!</h1>')
   })
@@ -54,7 +59,10 @@ let persons = [
   })
 
   const generateId = () => {
-    return String(Math.floor(Math.random()*10000))
+    const maxId = persons.length > 0
+      ? Math.max(...persons.map(n => Number(n.id)))
+      : 0
+    return String(maxId + 1)
   }
   
   app.post('/api/persons', (request, response) => {
@@ -86,7 +94,7 @@ let persons = [
   
     persons = persons.concat(person)
   
-    response.json(persons)
+    response.json(person)
   })
 
   app.delete('/api/persons/:id', (request, response) => {
@@ -96,7 +104,7 @@ let persons = [
     response.status(204).end()
   })
 
-  const PORT = 3001
+  const PORT = process.env.PORT || 3001
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`)
   })
